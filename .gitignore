@@ -1,0 +1,52 @@
+# Python
+__pycache__/
+*.pyc
+
+# Virtual environments
+venv/
+.venv/
+
+# Environment variables
+.env
+
+# Logs
+logs/
+*.log
+
+# Data
+data/
+datasets/
+*.csv
+*.json
+*.pdf
+
+# Uploads
+uploads/
+*.csv
+*.json
+*.pdf
+
+# Model artifacts
+models/
+*.pt
+*.pth
+*.pkl
+*.bin
+
+# Vector DB
+faiss_index/
+chroma_db/
+
+# Notebook checkpoints
+.ipynb_checkpoints/
+
+# IDE
+.vscode/
+.idea/
+
+# notes
+notes.txt
+
+# Docker file
+Dockerfile
+*.yml
