@@ -1,5 +1,9 @@
 fastapi
 uvicorn
 pydantic
-openai
 pandas
+langchain
+langgraph
+openai
+python-dotenv
+langchain_openai

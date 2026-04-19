@@ -1,10 +1,13 @@
 from fastapi import APIRouter
-from app.services.orchestrator import Orchestrator
+from app.graph.graph_builder import build_graph
 
 router = APIRouter()
-orchestrator = Orchestrator()
+graph = build_graph()
 
 @router.post("/analyze")
 def analyze(query: str):
-    result = orchestrator.run(query)
+    result = graph.invoke({
+        "query": query
+    })
+
     return result

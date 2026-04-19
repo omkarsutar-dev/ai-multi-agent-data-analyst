@@ -1,20 +1,39 @@
-from app.agents.base_agent import BaseAgent
+from langchain_core.prompts import ChatPromptTemplate
+from app.core.llm import get_llm
 
-class PlannerAgent(BaseAgent):
-    def __init__(self):
-        super().__init__("PlannerAgent")
+llm = get_llm()
 
-    def run(self, input_data: dict) -> dict:
-        query = input_data.get("query")
+prompt = ChatPromptTemplate.from_messages([
+    ("system", "You are a data analyst AI."),
+    ("human", """
+Break the user query into steps.
 
-        # Dummy breakdown (we improve later using LLM)
-        tasks = [
-            "generate_sql",
-            "analyze_data",
-            "generate_insight"
-        ]
+You MUST choose ONLY from these tasks:
+- generate_sql
+- analyze_data
+- generate_insight
 
-        return {
-            "tasks": tasks,
-            "original_query": query
-        }
+Return ONLY a Python list.
+
+Query: {query}
+
+Example Output:
+["generate_sql", "analyze_data", "generate_insight"]
+""")
+])
+
+def planner_node(state):
+    query = state["query"]
+
+    response = llm.invoke(
+        prompt.format_messages(query=query)
+    )
+
+    try:
+        tasks = eval(response.content)
+    except:
+        tasks = ["generate_sql", "analyze_data"]
+
+    return {
+        "tasks": tasks
+    }
