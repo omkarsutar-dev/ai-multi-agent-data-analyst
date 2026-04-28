@@ -8,7 +8,10 @@ graph = build_graph()
 def analyze(query: str):
     query = query.strip('"')
     result = graph.invoke({
-        "query": query
+    "query": query,
+    "data": None,
+    "history": [],
+    "retry_count": 0
     })
 
     return result

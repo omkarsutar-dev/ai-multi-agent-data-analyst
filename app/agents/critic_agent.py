@@ -9,21 +9,21 @@ llm = get_llm()
 prompt = ChatPromptTemplate.from_messages([
     ("system", "You are a strict data analyst reviewer."),
     ("human", """
-Validate the insight using the data.
+Validate the insight.
 
 Query:
 {query}
 
-Data:
+Context/Data:
 {data}
 
 Insight:
 {insight}
 
 Rules:
-- Respond ONLY in valid JSON
-- Do NOT include explanation outside JSON
-- No markdown, no extra text
+- If data is present → validate against data
+- If context is present → validate against previous insight
+- Return ONLY JSON
 
 Format:
 {{"is_valid": true, "feedback": "reason"}}
@@ -41,28 +41,59 @@ def extract_json(text: str):
 
 def critic_node(state):
     query = state["query"]
-    data = state["data"]
     insight = state["insight"]
 
-    formatted_data = json.dumps(data, indent=2)
+    # 🔥 SAFE ACCESS
+    data = state.get("data", None)
+    history = state.get("history", [])
 
-    response = llm.invoke(
-        prompt.format_messages(
-            query=query,
-            data=formatted_data,
-            insight=insight
+    # 🔥 CASE 1: No data → validate using memory
+    if not data:
+        if history:
+            last = history[-1]
+            context = f"""
+                Previous Query: {last['query']}
+                Previous Insight: {last['insight']}
+                """
+        else:
+            context = "No previous context available."
+
+        response = llm.invoke(
+            prompt.format_messages(
+                query=query,
+                data=context,
+                insight=insight
+            )
         )
-    )
 
+    else:
+        # 🔥 CASE 2: Normal validation
+        import json
+        formatted_data = json.dumps(data, indent=2)
+
+        response = llm.invoke(
+            prompt.format_messages(
+                query=query,
+                data=formatted_data,
+                insight=insight
+            )
+        )
+
+    # 🔥 SAFE JSON PARSING (your previous fix)
     raw_output = response.content
 
     try:
-        clean_json = extract_json(raw_output)
+        import re, json
+        match = re.search(r'\{.*\}', raw_output, re.DOTALL)
+        clean_json = match.group(0) if match else "{}"
         result = json.loads(clean_json)
-    except Exception as e:
+    except:
         result = {
-            "is_valid": result.get("is_valid", True),
-            "feedback": result.get("feedback", "No feedback")
+            "is_valid": True,
+            "feedback": "Fallback: unable to validate"
         }
 
-    return result
+    return {
+        "is_valid": result.get("is_valid", True),
+        "feedback": result.get("feedback", "")
+    }

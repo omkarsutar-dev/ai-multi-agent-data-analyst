@@ -6,6 +6,7 @@ from app.agents.insight_agent import insight_node
 from app.agents.critic_agent import critic_node
 from app.agents.memory_agent import memory_retrieve_node, memory_store_node
 from app.agents.visualization_agent import visualization_node
+from app.agents.router_agent import router_node
 
 
 def build_graph():
@@ -13,6 +14,7 @@ def build_graph():
 
     # Nodes
     graph.add_node("memory_retrieve", memory_retrieve_node)
+    graph.add_node("router", router_node)  
     graph.add_node("planner", planner_node)
     graph.add_node("sql_generator", sql_node)
     graph.add_node("sql_executor", execute_sql_node)
@@ -21,25 +23,41 @@ def build_graph():
     graph.add_node("critic", critic_node)
     graph.add_node("memory_store", memory_store_node)
 
-    # Flow
+    # Entry
     graph.set_entry_point("memory_retrieve")
-    graph.add_edge("memory_retrieve", "planner")
+
+    # Updated Flow
+    graph.add_edge("memory_retrieve", "router")
+
+    # Routing Logic
+    def route_decision(state):
+        return state.get("route", "sql")
+
+    graph.add_conditional_edges(
+        "router",
+        route_decision,
+        {
+            "sql": "planner",
+            "memory": "insight_generator",
+            "insight": "insight_generator"
+        }
+    )
+
+    # Existing Flow
     graph.add_edge("planner", "sql_generator")
     graph.add_edge("sql_generator", "sql_executor")
     graph.add_edge("sql_executor", "visualization")
     graph.add_edge("visualization", "insight_generator")
     graph.add_edge("insight_generator", "critic")
 
-    # Conditional logic
+    # Retry Logic
     def should_retry(state):
         is_valid = state.get("is_valid", True)
         retry_count = state.get("retry_count", 0)
 
-        # STOP CONDITION
         if retry_count > 2:
             return "end"
 
-        # 🔁 Retry if invalid
         if not is_valid:
             return "retry"
 

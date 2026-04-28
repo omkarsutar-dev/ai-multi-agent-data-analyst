@@ -11,3 +11,4 @@ class AgentState(TypedDict):
     retry_count: int
     history: List[str]
     chart_path: str
+    route: str
