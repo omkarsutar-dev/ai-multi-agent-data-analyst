@@ -5,6 +5,8 @@ from app.agents.sql_agent import sql_node, execute_sql_node
 from app.agents.insight_agent import insight_node
 from app.agents.critic_agent import critic_node
 from app.agents.memory_agent import memory_retrieve_node, memory_store_node
+from app.agents.visualization_agent import visualization_node
+
 
 def build_graph():
     graph = StateGraph(AgentState)
@@ -14,6 +16,7 @@ def build_graph():
     graph.add_node("planner", planner_node)
     graph.add_node("sql_generator", sql_node)
     graph.add_node("sql_executor", execute_sql_node)
+    graph.add_node("visualization", visualization_node)
     graph.add_node("insight_generator", insight_node)
     graph.add_node("critic", critic_node)
     graph.add_node("memory_store", memory_store_node)
@@ -23,7 +26,8 @@ def build_graph():
     graph.add_edge("memory_retrieve", "planner")
     graph.add_edge("planner", "sql_generator")
     graph.add_edge("sql_generator", "sql_executor")
-    graph.add_edge("sql_executor", "insight_generator")
+    graph.add_edge("sql_executor", "visualization")
+    graph.add_edge("visualization", "insight_generator")
     graph.add_edge("insight_generator", "critic")
 
     # Conditional logic

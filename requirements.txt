@@ -7,3 +7,4 @@ langgraph
 openai
 python-dotenv
 langchain_openai
+matplotlib

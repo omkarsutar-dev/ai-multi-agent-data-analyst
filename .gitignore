@@ -20,6 +20,11 @@ datasets/
 *.json
 *.pdf
 
+# outputs
+outputs/
+*.png
+*.jpeg
+
 # Uploads
 uploads/
 *.csv
