@@ -9,4 +9,4 @@ class AgentState(TypedDict):
     is_valid: bool      
     feedback: str       
     retry_count: int
-    
+    history: List[str]

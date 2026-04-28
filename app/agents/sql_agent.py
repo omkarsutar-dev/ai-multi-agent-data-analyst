@@ -10,15 +10,16 @@ prompt = ChatPromptTemplate.from_messages([
     ("human", """
 Convert the user query into SQL.
 
-Table name: sales
+Table: sales
 
 Columns:
 date, region, product, category, units_sold, revenue, cost, profit
 
 Rules:
-- Use valid SQLite syntax
-- Return ONLY raw SQL
-- DO NOT include ``` or explanations
+- Use SQLite syntax
+- Handle case sensitivity using LOWER()
+- Example: LOWER(region) = 'south'
+- Return ONLY SQL
 
 Query: {query}
 """)

@@ -28,6 +28,11 @@ Answer:
 def insight_node(state):
     query = state["query"]
     data = state["data"]
+    # CRITICAL FIX
+    if not data:
+        return {
+            "insight": "No data found for the query. Please refine the query or check data availability."
+        }
     retry_count = state.get("retry_count", 0)
 
     response = llm.invoke(
