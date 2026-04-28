@@ -5,3 +5,4 @@ class AgentState(TypedDict):
     tasks: List[str]
     sql_query: str
     data: Any
+    insight: str

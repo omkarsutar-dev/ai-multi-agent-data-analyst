@@ -6,6 +6,7 @@ graph = build_graph()
 
 @router.post("/analyze")
 def analyze(query: str):
+    query = query.strip('"')
     result = graph.invoke({
         "query": query
     })
