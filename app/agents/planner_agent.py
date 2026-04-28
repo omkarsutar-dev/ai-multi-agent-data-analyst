@@ -35,5 +35,6 @@ def planner_node(state):
         tasks = ["generate_sql", "analyze_data"]
 
     return {
-        "tasks": tasks
+        "tasks": tasks,
+        "retry_count": 0
     }

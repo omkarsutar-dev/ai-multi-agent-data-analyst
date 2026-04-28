@@ -28,11 +28,13 @@ Answer:
 def insight_node(state):
     query = state["query"]
     data = state["data"]
+    retry_count = state.get("retry_count", 0)
 
     response = llm.invoke(
         prompt.format_messages(query=query, data=str(data))
     )
 
     return {
-        "insight": response.content.strip()
+        "insight": response.content.strip(),
+        "retry_count": retry_count + 1   # 🔥 increment here
     }

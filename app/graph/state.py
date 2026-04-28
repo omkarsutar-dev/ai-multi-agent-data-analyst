@@ -6,3 +6,7 @@ class AgentState(TypedDict):
     sql_query: str
     data: Any
     insight: str
+    is_valid: bool      
+    feedback: str       
+    retry_count: int
+    
