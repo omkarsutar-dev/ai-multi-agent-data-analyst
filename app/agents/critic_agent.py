@@ -79,11 +79,10 @@ def critic_node(state):
             )
         )
 
-    # 🔥 SAFE JSON PARSING (your previous fix)
+    # 🔥 SAFE JSON PARSING
     raw_output = response.content
 
     try:
-        import re, json
         match = re.search(r'\{.*\}', raw_output, re.DOTALL)
         clean_json = match.group(0) if match else "{}"
         result = json.loads(clean_json)
@@ -93,7 +92,19 @@ def critic_node(state):
             "feedback": "Fallback: unable to validate"
         }
 
+    # 🔥 NEW LOGIC
+    retry_count = state.get("retry_count", 0)
+
+    is_valid = result.get("is_valid", True)
+    feedback = result.get("feedback", "")
+
+    if not is_valid:
+        retry_count += 1
+
+    print(f"[CRITIC] is_valid={is_valid}, retry_count={retry_count}")  # debug
+
     return {
-        "is_valid": result.get("is_valid", True),
-        "feedback": result.get("feedback", "")
+        "is_valid": is_valid,
+        "feedback": feedback,
+        "retry_count": retry_count
     }
